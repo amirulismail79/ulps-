@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Unit Latihan &amp; Pembangunan — KKBD</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, "Segoe UI", system-ui, sans-serif; font-size: 14px; background: #f0f2f5; color: #1f2328; }
+
+    /* ── Header ── */
+    header {
+      background: #1a3c6e; color: #fff;
+      padding: 0 24px; display: flex; align-items: center;
+      justify-content: space-between; height: 64px;
+      box-shadow: 0 2px 6px rgba(0,0,0,.25);
+    }
+    header .logo-area { display: flex; align-items: center; gap: 14px; }
+    header .badge {
+      background: #f5a623; color: #1a3c6e; font-weight: 700;
+      font-size: 18px; width: 40px; height: 40px;
+      border-radius: 8px; display: grid; place-items: center;
+    }
+    header h1 { font-size: 16px; font-weight: 600; line-height: 1.3; }
+    header h1 span { display: block; font-size: 11px; font-weight: 400; opacity: .8; }
+    header .header-right { font-size: 12px; opacity: .75; text-align: right; }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
+
+    /* ── Stat Cards ── */
+    .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 24px; }
+    .stat-card { background: #fff; border-radius: 10px; padding: 18px 20px; border-left: 4px solid #1a3c6e; box-shadow: 0 1px 4px rgba(0,0,0,.07); }
+    .stat-card.green  { border-left-color: #2e7d32; }
+    .stat-card.orange { border-left-color: #e65100; }
+    .stat-card.purple { border-left-color: #6a1b9a; }
+    .stat-card.teal   { border-left-color: #00695c; }
+    .stat-card .label { font-size: 11px; color: #57606a; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+    .stat-card .value { font-size: 28px; font-weight: 700; color: #1a3c6e; }
+    .stat-card.green .value  { color: #2e7d32; }
+    .stat-card.orange .value { color: #e65100; }
+    .stat-card.purple .value { color: #6a1b9a; }
+    .stat-card.teal .value   { color: #00695c; }
+    .stat-card .sub { font-size: 11px; color: #57606a; margin-top: 4px; }
+
+    /* ── Section ── */
+    .section { background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,.07); margin-bottom: 24px; overflow: hidden; }
+    .section-header {
+      background: #1a3c6e; color: #fff; padding: 12px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; flex-wrap: wrap;
+    }
+    .section-header h2 { font-size: 14px; font-weight: 600; }
+    .section-body { padding: 20px; }
+
+    /* ── Form Grid ── */
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-group label { font-size: 12px; font-weight: 600; color: #1a3c6e; }
+    .form-group input,
+    .form-group select {
+      padding: 8px 10px; border: 1px solid #d0d7de; border-radius: 6px;
+      font-size: 13px; color: #1f2328; background: #fff; outline: none;
+    }
+    .form-group input:focus,
+    .form-group select:focus { border-color: #1a3c6e; box-shadow: 0 0 0 3px rgba(26,60,110,.1); }
+    .form-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn {
+      padding: 8px 18px; border: none; border-radius: 6px;
+      font-size: 13px; font-weight: 600; cursor: pointer; transition: opacity .15s;
+    }
+    .btn:hover { opacity: .85; }
+    .btn-primary { background: #1a3c6e; color: #fff; }
+    .btn-danger  { background: #c62828; color: #fff; }
+    .btn-sm { padding: 4px 10px; font-size: 11px; }
+
+    /* ── Tabs ── */
+    .tabs { display: flex; border-bottom: 2px solid #e5e7eb; margin-bottom: 20px; }
+    .tab {
+      padding: 9px 20px; font-size: 13px; font-weight: 600;
+      cursor: pointer; color: #57606a; border-bottom: 2px solid transparent;
+      margin-bottom: -2px; transition: color .15s;
+    }
+    .tab.active { color: #1a3c6e; border-bottom-color: #1a3c6e; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── Controls ── */
+    .controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .controls input, .controls select {
+      padding: 6px 10px; border: 1px solid #d0d7de; border-radius: 6px;
+      font-size: 13px; background: #fff; color: #1f2328; outline: none;
+    }
+    .controls input:focus, .controls select:focus { border-color: #1a3c6e; }
+    .controls input { min-width: 200px; }
+
+    /* ── Table ── */
+    .tbl-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead tr { background: #eef2f8; }
+    thead th { padding: 10px 12px; text-align: left; font-weight: 600; color: #1a3c6e; white-space: nowrap; border-bottom: 2px solid #c8d6e8; }
+    tbody tr { border-bottom: 1px solid #e5e7eb; transition: background .15s; }
+    tbody tr:hover { background: #f5f8ff; }
+    tbody td { padding: 9px 12px; vertical-align: middle; }
+
+    /* ── Badge Unit ── */
+    .badge-unit {
+      display: inline-block; padding: 2px 8px; border-radius: 12px;
+      font-size: 11px; font-weight: 600; background: #e8eef8; color: #1a3c6e;
+    }
+    .badge-unit.ske  { background: #e8f5e9; color: #2e7d32; }
+    .badge-unit.sau  { background: #fce8d8; color: #b84500; }
+    .badge-unit.stm  { background: #f3e5f5; color: #6a1b9a; }
+    .badge-unit.dcv  { background: #e0f7fa; color: #00695c; }
+    .badge-unit.sts  { background: #fff3e0; color: #e65100; }
+    .badge-unit.pp   { background: #fce4ec; color: #880e4f; }
+
+    /* ── Progress bar ── */
+    .prog-wrap { display: flex; align-items: center; gap: 8px; }
+    .prog-bar { flex: 1; height: 7px; background: #e5e7eb; border-radius: 4px; overflow: hidden; min-width: 60px; }
+    .prog-fill { height: 100%; background: #1a3c6e; border-radius: 4px; }
+
+    /* ── Chart bars ── */
+    .chart-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; padding: 4px 0; }
+    .bar-item { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .bar-outer { width: 100%; height: 120px; background: #f0f2f5; border-radius: 6px; display: flex; align-items: flex-end; overflow: hidden; }
+    .bar-inner { width: 100%; background: #1a3c6e; border-radius: 6px 6px 0 0; }
+    .bar-label { font-size: 11px; color: #57606a; text-align: center; line-height: 1.5; }
+    .bar-val   { font-size: 13px; font-weight: 700; color: #1a3c6e; }
+
+    /* ── Empty state ── */
+    .empty { text-align: center; padding: 32px; color: #57606a; font-size: 13px; }
+
+    /* ── Alert ── */
+    .alert { padding: 10px 14px; border-radius: 6px; font-size: 13px; margin-bottom: 14px; display: none; }
+    .alert.success { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+    .alert.error   { background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; }
+
+    /* ── Modal Padam ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.45); z-index: 999;
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal-box {
+      background: #fff; border-radius: 12px; padding: 28px 28px 22px;
+      max-width: 400px; width: 90%; box-shadow: 0 8px 32px rgba(0,0,0,.18);
+    }
+    .modal-box h4 { font-size: 15px; color: #1f2328; margin-bottom: 8px; }
+    .modal-box p  { font-size: 13px; color: #57606a; margin-bottom: 20px; line-height: 1.6; }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+    footer { text-align: center; font-size: 12px; color: #57606a; padding: 20px 0 10px; border-top: 1px solid #e5e7eb; margin-top: 8px; }
+
+    @media(max-width:600px){
+      header h1 { font-size: 13px; }
+      .stat-card .value { font-size: 22px; }
+      .form-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo-area">
+    <div class="badge">ULP</div>
+    <h1>Unit Latihan &amp; Pembangunan<span>Kolej Komuniti Bandar Darulaman (KKBD)</span></h1>
+  </div>
+  <div class="header-right">Tahun: <strong>2025</strong><br>Dikemaskini: <strong id="lastUpdate"></strong></div>
+</header>
+
+<div class="container">
+
+  <!-- STAT CARDS -->
+  <div class="stat-row" id="statRow"></div>
+
+  <!-- CHART -->
+  <div class="section">
+    <div class="section-header"><h2>&#128202; Jumlah Hari Kursus Mengikut Unit</h2></div>
+    <div class="section-body"><div class="chart-row" id="chartUnit"></div></div>
+  </div>
+
+  <!-- TABS: INPUT | SENARAI STAF | REKOD KURSUS -->
+  <div class="section">
+    <div class="section-header"><h2>&#128194; Pengurusan Data</h2></div>
+    <div class="section-body">
+
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('tabInput')">&#10133; Input Data</div>
+        <div class="tab" onclick="switchTab('tabStaf')">&#128100; Senarai Staf</div>
+        <div class="tab" onclick="switchTab('tabKursus')">&#128203; Rekod Kursus</div>
+      </div>
+
+      <!-- TAB 1: INPUT DATA -->
+      <div id="tabInput" class="tab-panel active">
+
+        <!-- Tambah Staf -->
+        <h3 style="font-size:13px;color:#1a3c6e;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid #e5e7eb;">Tambah Staf Baharu</h3>
+        <div id="alertStaf" class="alert"></div>
+        <div class="form-grid">
+          <div class="form-group" style="grid-column: span 2;">
+            <label>Nama Penuh Staf *</label>
+            <input type="text" id="inNama" placeholder="Cth: Ahmad bin Abu Bakar" />
+          </div>
+          <div class="form-group">
+            <label>Unit *</label>
+            <select id="inUnit">
+              <option value="">-- Pilih Unit --</option>
+              <option value="SKE">SKE &#8212; Sijil Teknologi Elektrik</option>
+              <option value="SAU">SAU &#8212; Sijil Teknologi Automotif</option>
+              <option value="STM">STM &#8212; Sijil Teknologi Maklumat</option>
+              <option value="DCV">DCV &#8212; Diploma Teknologi Perdagangan</option>
+              <option value="STS">STS &#8212; Sijil Teknologi Senibina</option>
+              <option value="PP">PP &#8212; Pengurusan dan Pentadbiran</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-actions" style="margin-bottom:20px;">
+          <button class="btn btn-primary" onclick="tambahStaf()">&#10010; Tambah Staf</button>
+          <button class="btn" style="background:#e5e7eb;color:#1f2328;" onclick="clearStafForm()">&#10005; Kosongkan</button>
+        </div>
+
+        <!-- Import CSV -->
+        <div style="border:1px dashed #c8d6e8;border-radius:8px;padding:16px;background:#f7f9fc;margin-bottom:20px;">
+          <p style="font-size:12px;font-weight:600;color:#1a3c6e;margin-bottom:8px;">&#128194; Import Senarai Staf dari Fail CSV</p>
+          <p style="font-size:11px;color:#57606a;margin-bottom:10px;">Format CSV: <code style="background:#eef2f8;padding:2px 6px;border-radius:4px;font-size:11px;">Nama,Unit</code> (baris pertama diabaikan sebagai pengepala)</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+            <label for="inCSV" style="cursor:pointer;">
+              <span style="display:inline-block;padding:7px 14px;background:#1a3c6e;color:#fff;border-radius:6px;font-size:12px;font-weight:600;">&#128206; Pilih Fail CSV</span>
+              <input type="file" id="inCSV" accept=".csv,text/csv" style="display:none;" onchange="importCSV(event)" />
+            </label>
+            <span id="namaCSV" style="font-size:12px;color:#57606a;"></span>
+          </div>
+          <div id="alertCSV" class="alert" style="margin-top:10px;margin-bottom:0;"></div>
+        </div>
+
+        <!-- Tambah Rekod Kursus -->
+        <h3 style="font-size:13px;color:#1a3c6e;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid #e5e7eb;">Tambah Rekod Kursus / Latihan</h3>
+        <div id="alertKursus" class="alert"></div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Pilih Staf *</label>
+            <select id="inKStaf">
+              <option value="">-- Pilih Staf --</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Nama Kursus / Program *</label>
+            <input type="text" id="inKNama" placeholder="Cth: Kursus Pedagogi Abad ke-21" />
+          </div>
+          <div class="form-group">
+            <label>Tarikh Kursus *</label>
+            <input type="date" id="inKTarikh" />
+          </div>
+          <div class="form-group">
+            <label>Penganjur</label>
+            <input type="text" id="inKPenganjur" placeholder="Cth: KPM, JPA, HRDC" />
+          </div>
+          <div class="form-group">
+            <label>Bilangan Hari *</label>
+            <input type="number" id="inKHari" min="0.5" step="0.5" placeholder="Cth: 2" />
+          </div>
+          <div class="form-group">
+            <label>Mod Pelaksanaan</label>
+            <select id="inKMod">
+              <option value="Fizikal">Fizikal</option>
+              <option value="Dalam Talian">Dalam Talian</option>
+              <option value="Hibrid">Hibrid</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" onclick="tambahKursus()">&#10010; Tambah Rekod Kursus</button>
+          <button class="btn" style="background:#e5e7eb;color:#1f2328;" onclick="clearKursusForm()">&#10005; Kosongkan</button>
+        </div>
+
+      </div><!-- /tabInput -->
+
+      <!-- TAB 2: SENARAI STAF -->
+      <div id="tabStaf" class="tab-panel">
+        <div class="controls" style="margin-bottom:14px;">
+          <input type="text" id="searchStaf" placeholder="&#128269;  Cari nama staf..." oninput="renderStafTable()" />
+          <select id="filterUnitStaf" onchange="renderStafTable()">
+            <option value="">Semua Unit</option>
+            <option value="SKE">SKE</option>
+            <option value="SAU">SAU</option>
+            <option value="STM">STM</option>
+            <option value="DCV">DCV</option>
+            <option value="STS">STS</option>
+            <option value="PP">PP</option>
+          </select>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Nama Staf</th><th>Unit</th><th>Bil. Kursus</th><th>Jumlah Hari</th><th>Pencapaian</th><th>Tindakan</th></tr></thead>
+            <tbody id="stafBody"></tbody>
+          </table>
+        </div>
+      </div><!-- /tabStaf -->
+
+      <!-- TAB 3: REKOD KURSUS -->
+      <div id="tabKursus" class="tab-panel">
+        <div class="controls" style="margin-bottom:14px;">
+          <input type="text" id="searchKursus" placeholder="&#128269;  Cari kursus atau nama staf..." oninput="renderKursusTable()" />
+          <select id="filterUnitKursus" onchange="renderKursusTable()">
+            <option value="">Semua Unit</option>
+            <option value="SKE">SKE</option>
+            <option value="SAU">SAU</option>
+            <option value="STM">STM</option>
+            <option value="DCV">DCV</option>
+            <option value="STS">STS</option>
+            <option value="PP">PP</option>
+          </select>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Nama Staf</th><th>Unit</th><th>Nama Kursus / Program</th><th>Tarikh</th><th>Penganjur</th><th>Bil. Hari</th><th>Mod</th><th>Tindakan</th></tr></thead>
+            <tbody id="kursusBody"></tbody>
+          </table>
+        </div>
+      </div><!-- /tabKursus -->
+
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL KONFIRMASI PADAM -->
+<div class="modal-overlay" id="modalPadam">
+  <div class="modal-box">
+    <h4>&#9888;&#65039; Sahkan Padam</h4>
+    <p id="modalMsg">Adakah anda pasti untuk memadam staf ini? Semua rekod kursus berkaitan juga akan dipadam dan tindakan ini tidak boleh dibatalkan.</p>
+    <div class="modal-actions">
+      <button class="btn" style="background:#e5e7eb;color:#1f2328;" onclick="tutupModal()">Batal</button>
+      <button class="btn btn-danger" id="btnSahPadam" onclick="sahPadam()">Ya, Padam</button>
+    </div>
+  </div>
+</div>
+
+<footer>&copy; 2025 Unit Latihan &amp; Pembangunan &#8212; Kolej Komuniti Bandar Darulaman. Semua hak terpelihara.</footer>
+
+<script>
+// ── UNIT CONFIG ─────────────────────────────────────────────────────
+const UNIT_LABEL = {
+  SKE: "Sijil Teknologi Elektrik",
+  SAU: "Sijil Teknologi Automotif",
+  STM: "Sijil Teknologi Maklumat",
+  DCV: "Diploma Teknologi Perdagangan",
+  STS: "Sijil Teknologi Senibina",
+  PP:  "Pengurusan dan Pentadbiran"
+};
+const UNIT_CLASS = { SKE:"ske", SAU:"sau", STM:"stm", DCV:"dcv", STS:"sts", PP:"pp" };
+
+// ── DATA STORE (localStorage) ───────────────────────────────────────
+function loadData() {
+  return {
+    staf:   JSON.parse(localStorage.getItem("ulp_staf")   || "[]"),
+    kursus: JSON.parse(localStorage.getItem("ulp_kursus") || "[]"),
+    nextStafId:   parseInt(localStorage.getItem("ulp_nsid") || "1"),
+    nextKursusId: parseInt(localStorage.getItem("ulp_nkid") || "1"),
+  };
+}
+function saveData(db) {
+  localStorage.setItem("ulp_staf",   JSON.stringify(db.staf));
+  localStorage.setItem("ulp_kursus", JSON.stringify(db.kursus));
+  localStorage.setItem("ulp_nsid",   db.nextStafId);
+  localStorage.setItem("ulp_nkid",   db.nextKursusId);
+}
+let DB = loadData();
+
+// ── HELPERS ─────────────────────────────────────────────────────────
+function fmtTarikh(iso) {
+  if (!iso) return "-";
+  const [y,m,d] = iso.split("-");
+  const bln = ["Jan","Feb","Mac","Apr","Mei","Jun","Jul","Ogs","Sep","Okt","Nov","Dis"];
+  return `${d} ${bln[parseInt(m)-1]} ${y}`;
+}
+function badgeUnit(unit) {
+  return `<span class="badge-unit ${UNIT_CLASS[unit]||''}">${unit}</span>`;
+}
+function modBadge(mod) {
+  const cfg = { "Fizikal":"#e8f5e9:#2e7d32", "Dalam Talian":"#e8eef8:#1a3c6e", "Hibrid":"#fff3e0:#e65100" };
+  const [bg,col] = (cfg[mod]||"#f0f2f5:#57606a").split(":");
+  return `<span style="font-size:11px;padding:2px 8px;border-radius:10px;background:${bg};color:${col}">${mod}</span>`;
+}
+function showAlert(id, msg, type) {
+  const el = document.getElementById(id);
+  el.textContent = msg; el.className = `alert ${type}`; el.style.display = "block";
+  setTimeout(() => el.style.display = "none", 3000);
+}
+
+// ── TABS ─────────────────────────────────────────────────────────────
+function switchTab(id) {
+  document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  const idx = ["tabInput","tabStaf","tabKursus"].indexOf(id);
+  document.querySelectorAll(".tab")[idx].classList.add("active");
+  if (id === "tabStaf")   renderStafTable();
+  if (id === "tabKursus") renderKursusTable();
+}
+
+// ── POPULATE STAF DROPDOWN ───────────────────────────────────────────
+function populateStafDropdown() {
+  const sel = document.getElementById("inKStaf");
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">-- Pilih Staf --</option>';
+  DB.staf.forEach(s => {
+    const o = document.createElement("option");
+    o.value = s.id;
+    o.textContent = `${s.nama} (${s.unit})`;
+    sel.appendChild(o);
+  });
+  sel.value = cur;
+}
+
+// ── TAMBAH STAF ──────────────────────────────────────────────────────
+function tambahStaf() {
+  const nama = document.getElementById("inNama").value.trim();
+  const unit = document.getElementById("inUnit").value;
+  if (!nama || !unit) { showAlert("alertStaf","Sila lengkapkan semua medan bertanda *","error"); return; }
+  DB.staf.push({ id: DB.nextStafId++, nama, unit });
+  saveData(DB);
+  clearStafForm();
+  populateStafDropdown();
+  refreshAll();
+  renderStafTable();
+  showAlert("alertStaf", `\u2713 Staf "${nama}" berjaya ditambah!`, "success");
+}
+function clearStafForm() {
+  document.getElementById("inNama").value = "";
+  document.getElementById("inUnit").value = "";
+}
+
+// ── IMPORT CSV ───────────────────────────────────────────────────────
+const UNIT_SEDIA = ["SKE","SAU","STM","DCV","STS","PP"];
+function importCSV(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  document.getElementById("namaCSV").textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const lines = e.target.result.split(/\r?\n/).filter(l => l.trim());
+    if (lines.length < 2) {
+      showAlertCSV("Fail CSV kosong atau tiada data selain pengepala.", "error"); return;
+    }
+    let ditambah = 0, gagal = 0, duplikat = 0;
+    for (let i = 1; i < lines.length; i++) {
+      const cols = lines[i].split(",").map(c => c.trim().replace(/^"|"$/g, ""));
+      const nama = cols[0] || "";
+      const unit = (cols[1] || "").toUpperCase();
+      if (!nama) { gagal++; continue; }
+      if (!UNIT_SEDIA.includes(unit)) { gagal++; continue; }
+      const ada = DB.staf.some(s => s.nama.toLowerCase() === nama.toLowerCase() && s.unit === unit);
+      if (ada) { duplikat++; continue; }
+      DB.staf.push({ id: DB.nextStafId++, nama, unit });
+      ditambah++;
+    }
+    saveData(DB);
+    DB = loadData();
+    populateStafDropdown();
+    refreshAll();
+    renderStafTable();
+    document.getElementById("inCSV").value = "";
+    document.getElementById("namaCSV").textContent = "";
+    let msg = `\u2713 ${ditambah} staf berjaya diimport.`;
+    if (duplikat) msg += ` ${duplikat} dilewati (duplikat).`;
+    if (gagal)    msg += ` ${gagal} baris gagal (nama kosong / unit tidak sah).`;
+    showAlertCSV(msg, ditambah > 0 ? "success" : "error");
+  };
+  reader.readAsText(file);
+}
+function showAlertCSV(msg, type) {
+  const el = document.getElementById("alertCSV");
+  el.textContent = msg; el.className = `alert ${type}`; el.style.display = "block";
+  setTimeout(() => el.style.display = "none", 5000);
+}
+
+// ── TAMBAH KURSUS ────────────────────────────────────────────────────
+function tambahKursus() {
+  const stafId    = parseInt(document.getElementById("inKStaf").value);
+  const kursus    = document.getElementById("inKNama").value.trim();
+  const tarikh    = document.getElementById("inKTarikh").value;
+  const penganjur = document.getElementById("inKPenganjur").value.trim();
+  const hari      = parseFloat(document.getElementById("inKHari").value);
+  const mod       = document.getElementById("inKMod").value;
+  if (!stafId || !kursus || !tarikh || isNaN(hari) || hari <= 0) {
+    showAlert("alertKursus","Sila lengkapkan semua medan bertanda * (Staf, Nama Kursus, Tarikh, Bilangan Hari)","error"); return;
+  }
+  const staf = DB.staf.find(s => s.id === stafId);
+  DB.kursus.push({ id: DB.nextKursusId++, stafId, nama: staf.nama, unit: staf.unit, kursus, tarikh, penganjur, hari, mod });
+  saveData(DB);
+  clearKursusForm();
+  refreshAll();
+  showAlert("alertKursus", `\u2713 Rekod kursus "${kursus}" berjaya ditambah!`, "success");
+}
+function clearKursusForm() {
+  document.getElementById("inKStaf").value = "";
+  ["inKNama","inKTarikh","inKPenganjur","inKHari"].forEach(id => document.getElementById(id).value = "");
+  document.getElementById("inKMod").value = "Fizikal";
+}
+
+// ── PADAM ────────────────────────────────────────────────────────────
+let _padamStafId = null;
+let _padamKursusId = null;
+
+function padamStaf(id) {
+  const staf = DB.staf.find(s => s.id === id);
+  const bilKursus = DB.kursus.filter(k => k.stafId === id).length;
+  _padamStafId = id;
+  _padamKursusId = null;
+  document.getElementById("modalMsg").innerHTML =
+    `Adakah anda pasti untuk memadam staf <strong>${staf.nama}</strong>?<br><br>` +
+    `<span style="color:#c62828">${bilKursus} rekod kursus</span> berkaitan juga akan dipadam. ` +
+    `Tindakan ini <strong>tidak boleh dibatalkan</strong>.`;
+  document.getElementById("modalPadam").classList.add("show");
+}
+
+function padamKursus(id) {
+  _padamKursusId = id;
+  _padamStafId = null;
+  document.getElementById("modalMsg").innerHTML =
+    `Adakah anda pasti untuk memadam rekod kursus ini?<br><br>` +
+    `Tindakan ini <strong>tidak boleh dibatalkan</strong>.`;
+  document.getElementById("modalPadam").classList.add("show");
+}
+
+function tutupModal() {
+  document.getElementById("modalPadam").classList.remove("show");
+  _padamStafId = null;
+  _padamKursusId = null;
+}
+
+function sahPadam() {
+  if (_padamStafId !== null) {
+    DB.staf   = DB.staf.filter(s => s.id !== _padamStafId);
+    DB.kursus = DB.kursus.filter(k => k.stafId !== _padamStafId);
+    saveData(DB);
+    DB = loadData();
+    populateStafDropdown();
+    refreshAll();
+    renderStafTable();
+  } else if (_padamKursusId !== null) {
+    DB.kursus = DB.kursus.filter(k => k.id !== _padamKursusId);
+    saveData(DB);
+    DB = loadData();
+    refreshAll();
+    renderKursusTable();
+  }
+  tutupModal();
+}
+
+// ── RENDER STAT CARDS ────────────────────────────────────────────────
+function renderStats() {
+  const totalHari = DB.kursus.reduce((a,k)=>a+k.hari,0);
+  const stafAktif = new Set(DB.kursus.map(k=>k.stafId)).size;
+  document.getElementById("statRow").innerHTML = `
+    <div class="stat-card"><div class="label">Jumlah Staf Berdaftar</div><div class="value">${DB.staf.length}</div><div class="sub">Semua unit</div></div>
+    <div class="stat-card green"><div class="label">Staf Telah Berkursus</div><div class="value">${stafAktif}</div><div class="sub">Daripada ${DB.staf.length} staf</div></div>
+    <div class="stat-card orange"><div class="label">Jumlah Rekod Kursus</div><div class="value">${DB.kursus.length}</div><div class="sub">Sepanjang 2025</div></div>
+    <div class="stat-card purple"><div class="label">Jumlah Keseluruhan Hari</div><div class="value">${totalHari}</div><div class="sub">Hari berkursus 2025</div></div>
+    <div class="stat-card teal"><div class="label">Purata Hari / Staf</div><div class="value">${DB.staf.length?((totalHari/DB.staf.length).toFixed(1)):0}</div><div class="sub">Hari per staf</div></div>
+  `;
+}
+
+// ── RENDER CHART ─────────────────────────────────────────────────────
+function renderChart() {
+  const units = Object.keys(UNIT_LABEL);
+  const uStats = units.map(u => ({ unit:u, totalHari: DB.kursus.filter(k=>k.unit===u).reduce((a,k)=>a+k.hari,0) }));
+  const max = Math.max(...uStats.map(u=>u.totalHari), 1);
+  document.getElementById("chartUnit").innerHTML = uStats.map(u=>`
+    <div class="bar-item">
+      <div class="bar-val">${u.totalHari} hari</div>
+      <div class="bar-outer"><div class="bar-inner" style="height:${Math.round((u.totalHari/max)*100)}%"></div></div>
+      <div class="bar-label">${badgeUnit(u.unit)}<br>${UNIT_LABEL[u.unit]}</div>
+    </div>`).join("");
+}
+
+// ── RENDER STAF TABLE ────────────────────────────────────────────────
+function renderStafTable() {
+  const q    = (document.getElementById("searchStaf")?.value||"").toLowerCase();
+  const unit = document.getElementById("filterUnitStaf")?.value||"";
+  const data = DB.staf.filter(s => s.nama.toLowerCase().includes(q) && (!unit||s.unit===unit));
+  const maxHari = Math.max(...DB.staf.map(s => DB.kursus.filter(k=>k.stafId===s.id).reduce((a,k)=>a+k.hari,0)), 1);
+  const body = document.getElementById("stafBody");
+  if (!data.length) { body.innerHTML = `<tr><td colspan="7"><div class="empty">Tiada rekod staf. Tambah staf melalui tab "Input Data".</div></td></tr>`; return; }
+  body.innerHTML = data.map((s,i) => {
+    const rekod = DB.kursus.filter(k=>k.stafId===s.id);
+    const totalHari = rekod.reduce((a,k)=>a+k.hari,0);
+    const pct = Math.round((totalHari/maxHari)*100);
+    return `<tr>
+      <td>${i+1}</td>
+      <td><strong>${s.nama}</strong></td>
+      <td>${badgeUnit(s.unit)}</td>
+      <td style="text-align:center"><strong>${rekod.length}</strong></td>
+      <td style="text-align:center"><strong>${totalHari}</strong> hari</td>
+      <td><div class="prog-wrap"><div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div><span style="font-size:11px;color:#57606a;white-space:nowrap">${totalHari} hari</span></div></td>
+      <td><button class="btn btn-danger btn-sm" onclick="padamStaf(${s.id})">&#128465; Padam</button></td>
+    </tr>`;
+  }).join("");
+}
+
+// ── RENDER KURSUS TABLE ──────────────────────────────────────────────
+function renderKursusTable() {
+  const q    = (document.getElementById("searchKursus")?.value||"").toLowerCase();
+  const unit = document.getElementById("filterUnitKursus")?.value||"";
+  const data = DB.kursus.filter(k =>
+    (k.kursus.toLowerCase().includes(q)||k.nama.toLowerCase().includes(q)) && (!unit||k.unit===unit)
+  );
+  const body = document.getElementById("kursusBody");
+  if (!data.length) { body.innerHTML = `<tr><td colspan="9"><div class="empty">Tiada rekod kursus. Tambah rekod melalui tab "Input Data".</div></td></tr>`; return; }
+  body.innerHTML = data.map((k,i) => `
+    <tr>
+      <td>${i+1}</td>
+      <td><strong>${k.nama}</strong></td>
+      <td>${badgeUnit(k.unit)}</td>
+      <td>${k.kursus}</td>
+      <td style="white-space:nowrap">${fmtTarikh(k.tarikh)}</td>
+      <td style="color:#57606a">${k.penganjur||"-"}</td>
+      <td style="text-align:center"><strong>${k.hari}</strong></td>
+      <td>${modBadge(k.mod)}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="padamKursus(${k.id})">&#128465; Padam</button></td>
+    </tr>`).join("");
+}
+
+// ── REFRESH ALL ──────────────────────────────────────────────────────
+function refreshAll() {
+  renderStats();
+  renderChart();
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────
+document.getElementById("lastUpdate").textContent =
+  new Date().toLocaleDateString("ms-MY", {day:"2-digit",month:"long",year:"numeric"});
+populateStafDropdown();
+refreshAll();
+renderStafTable();
+</script>
+</body>
+</html>
